@@ -17,6 +17,8 @@ IPAddress ipClient2(192, 168, 4, 11); //For Client2
 IPAddress ipClient3(192, 168, 4, 12); //For Client3
 IPAddress Subnet(255, 255, 255, 0);
 
+byte ledPin = 2;
+
 void ticker_handler(){
   tickerOccured = true;
 }
@@ -26,14 +28,27 @@ void setup() {
   Serial.begin(115200);
   ticker.attach(1, ticker_handler);
   WiFi.begin(ssid, password);
+  
   WiFi.mode(WIFI_STA); // STA important !!!
   WiFi.config(ipClient1, ipServer, Subnet); //For Client1. Change 'ipClient1' For Other Clients!
+
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(100);
+  }
+  
   Udp.begin(localPort);
-  delay(1000);
+  
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+  
+  delay(2000);
+
+  digitalWrite(ledPin, HIGH);
 }
 
-void loop() {
- 
+void loop()
+{
 //**************** Send to server**********************************************************
     Udp.beginPacket(ipServer,9999);
     char sbuf[128];
@@ -68,20 +83,20 @@ void loop() {
       delay(70);
     //}
  
-//***************** Receive from server ****************************************************
-  int packetSize = Udp.parsePacket();
-  if (packetSize) {
-    int len = Udp.read(packetBuffer, 255);
-    if (len > 0) packetBuffer[len-1] = 0;
-    Serial.print("R : ");   
-    Serial.println(packetBuffer);
+  //***************** Receive from server ****************************************************
+    int packetSize = Udp.parsePacket();
+    if (packetSize) {
+      int len = Udp.read(packetBuffer, 255);
+      if (len > 0) packetBuffer[len-1] = 0;
+      Serial.print("R : ");   
+      Serial.println(packetBuffer);
+    }
+  //Serial.println();
+  if (tickerOccured) {
+    Serial.println ("ticker occured"); // Testing ticker
+    tickerOccured = false;
   }
-//Serial.println();
-if (tickerOccured) {
-  Serial.println ("ticker occured"); // Testing ticker
-  tickerOccured = false;
-}
 
-delay(100);
+delay(100);//TODO Deger azaltilacak.
 //delay(2);
 } 
