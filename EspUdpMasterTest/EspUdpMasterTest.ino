@@ -14,6 +14,7 @@ const char *ssid = "ESP8266UdpTest";
 const char *password = "esp8266udp";
 bool tickerOccured;
 
+byte ledPin = 2;
 
 void setup() {
   delay(2000);
@@ -24,15 +25,22 @@ void setup() {
   Udp.begin(localPort);
   Serial.print("Udp basladi Port: ");
   Serial.println(Udp.localPort());
+
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+  
   delay(1000);
+  digitalWrite(ledPin, HIGH);
   }
 
 void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     int len = Udp.read(packetBuffer, 255);
-    if (len > 0) packetBuffer[len-1] = 0;
-    Serial.print("Received : ");   
+    if (len > 0)
+      packetBuffer[len-1] = 0;
+    
+    //Serial.print("Received : ");   
     Serial.println(packetBuffer);
    
     Udp.beginPacket(Udp.remoteIP(),Udp.remotePort());
