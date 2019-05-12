@@ -40,11 +40,15 @@ void setup() {
   Udp.begin(localPort);
   
   pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
   
-  delay(2000);
-
+  digitalWrite(ledPin, LOW);
+  delay(1000);
   digitalWrite(ledPin, HIGH);
+  delay(500);
+  digitalWrite(ledPin, LOW);
+  delay(1000);
+  digitalWrite(ledPin, HIGH);
+  delay(500);
 }
 
 void loop()
@@ -66,22 +70,22 @@ void loop()
       }    
     else
     {
-      int len = Serial.readBytes(testData, 255);
+      int len = Serial.readBytes(testData, 255); //Serial Value
       if (len > 0)
          testData[len] = 0;
     }
 
-    //if(serialKontrol == 1)
-    //{
+    if(serialKontrol == 0)
       sprintf(sbuf, "%ld", rssi); // Wifi Strength
-      //sprintf(sbuf, "%s", testData); Test For Serial
-      Udp.write(sbuf);
-      Udp.write("\r\n");
-      Udp.endPacket();
-      Serial.print("S : ");
-      Serial.println(sbuf);
-      delay(70);
-    //}
+    else
+      sprintf(sbuf, "%s", testData); //For Serial
+    
+    Udp.write(sbuf);
+    Udp.write("\r\n");
+    Udp.endPacket();
+    Serial.print("S : ");
+    Serial.println(sbuf);
+    delay(70);
  
   //***************** Receive from server ****************************************************
     int packetSize = Udp.parsePacket();
