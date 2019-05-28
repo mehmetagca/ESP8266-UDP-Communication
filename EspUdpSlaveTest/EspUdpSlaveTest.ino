@@ -53,29 +53,38 @@ void setup() {
 
 void loop()
 {
-//**************** Send to server**********************************************************
+  //**************** Send to server**********************************************************
+    digitalWrite(ledPin, HIGH);
+    
     Udp.beginPacket(ipServer,9999);
     char sbuf[128];
-    int serialKontrol = 1;
+    int serialControl = 1;
+    int serialCount = 5;
 
     long rssi = 0;
     char testData[255];
     if(Serial.available() < 1)//Is Not Serial Available?
       {
-        serialKontrol = 0;
-        //strcpy(testData,"Test"); //millis();
-
+        serialControl = 0;
         // get the received signal strength:
         rssi = WiFi.RSSI();
       }    
     else
     {
-      int len = Serial.readBytes(testData, 255); //Serial Value
-      if (len > 0)
-         testData[len] = 0;
+      serialCount++;
+      if(serialCount > 5)
+      {
+        serialCount = 0;
+        
+        int len = Serial.readBytes(testData, 255); //Serial Value
+        if (len > 0)
+           testData[len] = 0;
+      }
+      else
+        serialControl = 0;
     }
 
-    if(serialKontrol == 0)
+    if(serialControl == 0)
       sprintf(sbuf, "%ld", rssi); // Wifi Strength
     else
       sprintf(sbuf, "%s", testData); //For Serial
@@ -85,9 +94,12 @@ void loop()
     Udp.endPacket();
     Serial.print("S : ");
     Serial.println(sbuf);
+
+    digitalWrite(ledPin, LOW);
     delay(70);
  
   //***************** Receive from server ****************************************************
+  /*    
     int packetSize = Udp.parsePacket();
     if (packetSize) {
       int len = Udp.read(packetBuffer, 255);
@@ -95,12 +107,12 @@ void loop()
       Serial.print("R : ");   
       Serial.println(packetBuffer);
     }
-  //Serial.println();
+  */
+  
   if (tickerOccured) {
     Serial.println ("ticker occured"); // Testing ticker
     tickerOccured = false;
   }
 
-delay(100);//TODO Deger azaltilacak.
-//delay(2);
-} 
+  delay(30);//TODO Deger azaltilacak.
+}
